@@ -98,18 +98,22 @@ if __name__ == '__main__':
     #check args
     if args.path_to_compiled_binary == "":
         print("You must provide the path to the compiled PID_resolver binary, or else this code will not work.")
+        parser.print_help()
         sys.exit()
 
     if os.path.exists(args.path_to_compiled_binary) != True:
         print("Please try again, apparently your provided compiled binary does not exist on your system.")
+        parser.print_help()
         sys.exit()
 
     if len(args.output) > 1024 or len(args.path_to_compiled_binary) > 1024:
         print("One of your provided arguments has too long of a path, please use a normal path.")
+        parser.print_help()  
         sys.exit()
 
     if str(args.kill) != "yes" and str(args.kill) != "no":
         print("Please choose yes or no for your kill option.  E.g. -kill yes")
+        parser.print_help()
         sys.exit()
 
 
