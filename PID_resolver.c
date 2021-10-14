@@ -23,9 +23,10 @@ int main (int argc, char* argv[])
         
         ret = proc_pidpath (pid, pathbuf, sizeof(pathbuf));
         if ( ret <= 0 ) {
+            //leaving in error messages here for debugging later.
             //fprintf(stderr, "process %d: proc_pidpath ();\n", pid);
             //fprintf(stderr, "    %s\n", strerror(errno));
-            count = count + 1; 
+            count = count + 1; //this is nonsense just to keep the code moving, definitely not the most efficient.
 
         } else {
             printf("PID is %d: %s\n", pid, pathbuf);
