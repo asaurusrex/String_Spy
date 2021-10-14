@@ -1,0 +1,2 @@
+# String_Spy
+String Spy is a project aimed at improving MacOS defenses.  It allows users to constantly monitor all running processes for user-defined strings, and if it detects a process with such a string it will log the PID, process path, and user running the process.  It will also (optionally) kill the process.  For certain default C2s and other malicious software, this tool can quickly log and stop malicious behavior that normal AV does not recognize, and allows for customization.
