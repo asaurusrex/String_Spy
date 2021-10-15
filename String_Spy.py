@@ -89,7 +89,7 @@ def main(path_to_compiled_binary, output, kill_option):
         Run_Scan(path_to_compiled_binary, output, kill_option)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="String Killer searches all running processes on MacOS and kills/logs any process which contains a string of your choice.")
+    parser = argparse.ArgumentParser(description="String Spy searches all running processes on MacOS and kills/logs any process which contains a string of your choice.")
     parser.add_argument('-path', action='store', dest="path_to_compiled_binary", default="", help="Provide the full path to the compiled PID_resolver code. See PID_resolver.c for source code. Sometimes errors if you do not provide full path")
     parser.add_argument('-o', action='store', dest="output", default="String_Spy_log.txt", help="Provide the full path where you want your log file to be placed.")
     parser.add_argument('-kill', action='store', dest="kill", default="no", help="Decide whether or not you want to kill the process which contains your chosen string. Your options are yes or no. The default is no.")
