@@ -45,7 +45,7 @@ Right now, String_Spy is hardcoded to hunt default Mythic payloads.
 To run it, after compiling PID_resolver.c, we can use commands such as: 
 
 ```
-sudo python2 string_scanner.py -path /Users/securitytester/string_scanner/PID_resolver -kill yes
+sudo python2 string_scanner.py -path /Users/securitytester/string_scanner/PID_resolver -string_list example_strings.txt
 ```
 
 NOTE: it is recommended to run this with sudo, so that you can enumerate/kill all processes if necessary.
