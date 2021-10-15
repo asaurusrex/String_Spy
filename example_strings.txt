@@ -1,0 +1,4 @@
+/Mythic/agent_code kill
+c2: log 
+
+
