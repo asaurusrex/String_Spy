@@ -10,13 +10,36 @@ This is only designed to run on MacOS, not Linux, so some modifications would be
 
 ## Usage
 
-usage: String_Spy.py [-h] 
+usage: String_Spy.py [-h] [-path PATH_TO_COMPILED_BINARY] [-o OUTPUT]
+                     [-string_file STRING_FILE]
 
-[-path PATH_TO_COMPILED_BINARY] Provide the full path to the compiled PID_resolver code. See PID_resolver.c for source code. Sometimes errors if you do not provide full path.
+String Spy searches all running processes on MacOS and kills/logs any process
+which contains a string of your choice.
 
-[-o OUTPUT] Provide the full path where you want your log file to be placed.  The default is StringKiller_log.txt.
+optional arguments:
 
-[-kill KILL] Decide whether or not you want to kill the process which contains your chosen string. Your options are yes or no. The default is no.
+  -h, --help            show this help message and exit
+
+  -path PATH_TO_COMPILED_BINARY
+
+                        Provide the full path to the compiled PID_resolver
+                        code. See PID_resolver.c for source code. Sometimes
+                        errors if you do not provide full path
+
+
+  -o OUTPUT             Provide the full path where you want your log file to
+                        be placed.
+
+
+  -string_file STRING_FILE
+
+                        Provide the path to a file which contains which
+                        strings you want to monitor for, and whether you want
+                        to kill a process with that string. E.g. "my_string
+                        kill" or if you wish to only log the process, then
+                        just "my_string log". Each new string should be a on
+                        new line.
+
 
 ## Example
 Right now, String_Spy is hardcoded to hunt default Mythic payloads.
