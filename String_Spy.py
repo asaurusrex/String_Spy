@@ -37,7 +37,7 @@ import time
 import argparse
 import sys
 
-def Run_Scan(path_to_compiled_binary, log_file, kill_option):
+def Run_Scan(path_to_compiled_binary, log_file, string_file):
     output = subprocess.check_output(['/bin/ps', '-eo', 'pid,user'])
 
     output = str(output)
@@ -48,6 +48,7 @@ def Run_Scan(path_to_compiled_binary, log_file, kill_option):
     #print(output_list)
 
     for entry in output_list:
+        count = 0
         try:
             if entry != "":
                 entry = entry.strip()
@@ -62,37 +63,53 @@ def Run_Scan(path_to_compiled_binary, log_file, kill_option):
                 if "PID is" in PID_output:
                     process_path = PID_output.split(":")[1].strip()
                     #print(process_path)
+                    
                     string_output = subprocess.check_output(['/usr/bin/strings', '{}'.format(process_path)])
                     string_output = str(string_output)
 
-                    if "/Mythic/agent_code" in string_output:  #****EDIT THIS LINE TO CHANGE THE STRING YOU ARE SEARCHING FOR****
-                        print("Found ya Mythic! In Process {0} at PID {1}".format(process_path, PID))
+                    with open('{}'.format(string_file), 'r') as f:
+                        lines = f.readlines()
 
-                        current_time = time.strftime('%l:%M%p %z on %b %d, %Y')
+                        for line in lines:
+                            line = line.strip()
+                            if line != "":
+                                 
+                                line_list = line.split(" ")
+                                string = line_list[0]
+                                kill_option = line_list[1]
+                            
 
-                        with open('{}'.format(log_file), 'a') as f:
-                            f.write(current_time + ":" + " " + PID + " " + user + " " + process_path)
-                            f.write("\n")
+                            if '{}'.format(string) in string_output:  #****EDIT THIS LINE TO CHANGE THE STRING YOU ARE SEARCHING FOR****
+                    
+                                if count < 1:
+                                    current_time = time.strftime('%l:%M%p %z on %b %d, %Y')
+                                    count = count + 1
+                                    print ("Found suspect process!" + " " +  current_time + ":" + " " + PID + " " + user + " " + process_path +  "; " + "String matched: " + string)
 
-                        if kill_option == "yes":
-                            kill_output = subprocess.check_output(['/bin/kill', '-9', '{}'.format(PID)])
-                            print("Process should be killed now.")
-        
+                                    with open('{}'.format(log_file), 'a') as f:
+                                        f.write(current_time + ":" + " " + PID + " " + user + " " + process_path)
+                                        f.write("\n")
+
+                                    if kill_option == "kill":
+                                        kill_output = subprocess.check_output(['/bin/kill', '-9', '{}'.format(PID)])
+                                        print("Process should be killed now.")
+                
         except ValueError as e:
             pass
 
     return
 
-def main(path_to_compiled_binary, output, kill_option):
+def main(path_to_compiled_binary, output, string_file):
 
     while True:
-        Run_Scan(path_to_compiled_binary, output, kill_option)
+        Run_Scan(path_to_compiled_binary, output, string_file)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="String Spy searches all running processes on MacOS and kills/logs any process which contains a string of your choice.")
     parser.add_argument('-path', action='store', dest="path_to_compiled_binary", default="", help="Provide the full path to the compiled PID_resolver code. See PID_resolver.c for source code. Sometimes errors if you do not provide full path")
     parser.add_argument('-o', action='store', dest="output", default="String_Spy_log.txt", help="Provide the full path where you want your log file to be placed.")
-    parser.add_argument('-kill', action='store', dest="kill", default="no", help="Decide whether or not you want to kill the process which contains your chosen string. Your options are yes or no. The default is no.")
+    #parser.add_argument('-kill', action='store', dest="kill", default="no", help="Decide whether or not you want to kill the process which contains your chosen string. Your options are yes or no. The default is no.")
+    parser.add_argument('-string_file', action='store', dest="string_file", default="", help="Provide the path to a file which contains which strings you want to monitor for, and whether you want to kill a process with that string. E.g. \"my_string kill\" or if you wish to only log the process, then just \"my_string log\".  Each new string should be a on new line.")
     args = parser.parse_args()
 
     #check args
@@ -111,11 +128,21 @@ if __name__ == '__main__':
         parser.print_help()  
         sys.exit()
 
-    if str(args.kill) != "yes" and str(args.kill) != "no":
-        print("Please choose yes or no for your kill option.  E.g. -kill yes")
+
+    # if str(args.kill) != "yes" and str(args.kill) != "no":
+    #     print("Please choose yes or no for your kill option.  E.g. -kill yes")
+    #     parser.print_help()
+    #     sys.exit()
+
+    if str(args.string_file) == "":
+        print("You must provide the path to the strings_file, or else this code will not work.")
         parser.print_help()
         sys.exit()
 
+    if os.path.exists(args.string_file) != True:
+        print("Please try again, apparently your provided strings_file does not exist on your system.")
+        parser.print_help()
+        sys.exit()
 
-    main(str(args.path_to_compiled_binary), str(args.output), str(args.kill))
+    main(str(args.path_to_compiled_binary), str(args.output), str(args.string_file))
 #print(output_list)
