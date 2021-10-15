@@ -21,7 +21,6 @@ optional arguments:
   -h, --help            show this help message and exit
 
   -path PATH_TO_COMPILED_BINARY
-
                         Provide the full path to the compiled PID_resolver
                         code. See PID_resolver.c for source code. Sometimes
                         errors if you do not provide full path
@@ -32,7 +31,6 @@ optional arguments:
 
 
   -string_file STRING_FILE
-
                         Provide the path to a file which contains which
                         strings you want to monitor for, and whether you want
                         to kill a process with that string. E.g. "my_string
