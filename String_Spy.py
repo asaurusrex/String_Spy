@@ -36,8 +36,11 @@ import os.path
 import time
 import argparse
 import sys
+import threading
 
-def Run_Scan(path_to_compiled_binary, log_file, string_file):
+def Get_Processes(path_to_compiled_binary):
+
+    process_info_list = list()
     output = subprocess.check_output(['/bin/ps', '-eo', 'pid,user'])
 
     output = str(output)
@@ -48,7 +51,7 @@ def Run_Scan(path_to_compiled_binary, log_file, string_file):
     #print(output_list)
 
     for entry in output_list:
-        count = 0
+        
         try:
             if entry != "":
                 entry = entry.strip()
@@ -63,46 +66,118 @@ def Run_Scan(path_to_compiled_binary, log_file, string_file):
                 if "PID is" in PID_output:
                     process_path = PID_output.split(":")[1].strip()
                     #print(process_path)
+                    useful_info = PID + ", " + user + ", " + process_path
+                    process_info_list.append(useful_info)
                     
-                    string_output = subprocess.check_output(['/usr/bin/strings', '{}'.format(process_path)])
-                    string_output = str(string_output)
 
-                    with open('{}'.format(string_file), 'r') as f:
-                        lines = f.readlines()
-
-                        for line in lines:
-                            line = line.strip()
-                            if line != "":
-                                 
-                                line_list = line.split(" ")
-                                string = line_list[0]
-                                kill_option = line_list[1]
-                            
-
-                            if '{}'.format(string) in string_output:  #****EDIT THIS LINE TO CHANGE THE STRING YOU ARE SEARCHING FOR****
-                    
-                                if count < 1:
-                                    current_time = time.strftime('%l:%M%p %z on %b %d, %Y')
-                                    count = count + 1
-                                    print ("Found suspect process!" + " " +  current_time + ":" + " " + PID + " " + user + " " + process_path +  "; " + "String matched: " + string)
-
-                                    with open('{}'.format(log_file), 'a') as f:
-                                        f.write(current_time + ":" + " " + PID + " " + user + " " + process_path)
-                                        f.write("\n")
-
-                                    if kill_option == "kill":
-                                        kill_output = subprocess.check_output(['/bin/kill', '-9', '{}'.format(PID)])
-                                        print("Process should be killed now.")
-                
         except ValueError as e:
             pass
 
+
+    return process_info_list
+
+def Check_Process_Strings(PID, user, process_path, log_file, string_file):
+    try:
+        count = 0
+        string_output = subprocess.check_output(['/usr/bin/strings', '{}'.format(process_path)])
+        string_output = str(string_output)
+
+        with open('{}'.format(string_file), 'r') as f:
+            lines = f.readlines()
+
+            for line in lines:
+                line = line.strip()
+                if line != "":
+                    line_list = line.split(" ")
+                    string = line_list[0] #string defined here
+                    kill_option = line_list[1] #kill option
+                
+
+                if '{}'.format(string) in string_output: 
+        
+                    if count < 1:
+                        current_time = time.strftime('%l:%M%p %z on %b %d, %Y')
+                        count = count + 1
+                        print ("Found suspect process!" + " " +  current_time + ":" + " " + PID + " " + user + " " + process_path +  "; " + "String matched: " + string)
+
+                        with open('{}'.format(log_file), 'a') as f:
+                            f.write(current_time + ":" + " " + PID + " " + user + " " + process_path + "; " + "String matched: " + string)
+                            f.write("\n")
+
+                        if kill_option == "kill":
+                            kill_output = subprocess.check_output(['/bin/kill', '-9', '{}'.format(PID)])
+                            print("Process should be killed now.")
+
+    except ValueError as e:
+        pass
+
     return
 
-def main(path_to_compiled_binary, output, string_file):
+def main(path_to_compiled_binary, log_file, string_file):
 
     while True:
-        Run_Scan(path_to_compiled_binary, output, string_file)
+
+        process_info_list = Get_Processes(path_to_compiled_binary) #list which will have PID, user, and process path information we need.
+
+        #we will show example using 3 threads - can always expand to more threads depending on the number of strings you want to search
+        length_processes = len(process_info_list)
+
+        
+        for i in range(length_processes):
+            
+            element = process_info_list[i]
+            element = element.strip()
+            if element != "":
+                particular_process_list = element.split(",")
+                PID = particular_process_list[0]
+                PID = PID.strip()
+
+                user = particular_process_list[1]
+                user = user.strip()
+
+                process_path = particular_process_list[2]
+                process_path = process_path.strip()
+                
+
+                #thread 3
+                if i % 3 == 0:
+                    #set up thread
+                    t3 = threading.Thread(target=Check_Process_Strings, args=(PID, user, process_path, log_file, string_file,))
+                    
+                    #start thread
+                    t3.start()
+
+                #thread 1
+                elif i % 3 == 1:
+                    #set up thread
+                    t1 = threading.Thread(target=Check_Process_Strings, args=(PID, user, process_path, log_file, string_file,))
+                    
+                    #start thread
+                    t1.start()
+
+                #thread 2
+                elif i % 3 == 2:
+                    #set up thread
+                    t2 = threading.Thread(target=Check_Process_Strings, args=(PID, user, process_path, log_file, string_file,))
+                    
+                    #start thread
+                    t2.start()
+
+            #wait for threads to finish?       
+            # t3.join()
+            # t1.join()
+            # t2.join()
+            
+                    
+                  
+
+                
+                
+
+
+
+
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="String Spy searches all running processes on MacOS and kills/logs any process which contains a string of your choice.")
@@ -145,4 +220,4 @@ if __name__ == '__main__':
         sys.exit()
 
     main(str(args.path_to_compiled_binary), str(args.output), str(args.string_file))
-#print(output_list)
+
