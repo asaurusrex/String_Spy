@@ -37,9 +37,8 @@ import time
 import argparse
 import sys
 import threading
-import platform
 
-def Get_Processes(path_to_compiled_binary, OS):
+def Get_Processes(path_to_compiled_binary):
 
     process_info_list = list()
     output = subprocess.check_output(['/bin/ps', '-eo', 'pid,user'])
@@ -61,26 +60,17 @@ def Get_Processes(path_to_compiled_binary, OS):
                 PID = secondary_list[0]
                 user = secondary_list[1]
 
-                if OS == "Darwin":
-                    PID_output = subprocess.check_output(['{}'.format(path_to_compiled_binary), '{}'.format(PID.strip())])
-                    PID_output = str(PID_output)
-                    
-                    if "PID is" in PID_output:
-                        process_path = PID_output.split(":")[1].strip()
-                        #print(process_path)
-                        useful_info = PID + ", " + user + ", " + process_path
-                        process_info_list.append(useful_info)
-                        
-                elif OS == "Linux":
-                    PID_output = subprocess.check_output(['/bin/readlink' , '/proc/{}/exe'.format(PID.strip())])
-                    PID_output = str(PID_output)
-                    process_path = PID_output
+                PID_output = subprocess.check_output(['{}'.format(path_to_compiled_binary), '{}'.format(PID.strip())])
+                PID_output = str(PID_output)
+                
+                if "PID is" in PID_output:
+                    process_path = PID_output.split(":")[1].strip()
+                    #print(process_path)
                     useful_info = PID + ", " + user + ", " + process_path
                     process_info_list.append(useful_info)
                     
 
-        except subprocess.CalledProcessError as e:
-            print("Unable to open process with PID: {}".format(PID.strip()))
+        except ValueError as e:
             pass
 
 
@@ -95,41 +85,39 @@ def Check_Process_Strings(PID, user, process_path, log_file, string_file):
         with open('{}'.format(string_file), 'r') as f:
             lines = f.readlines()
 
-            for line in lines:
-                line = line.strip()
-                if line != "":
-                    line_list = line.split(" ")
-                    string = line_list[0] #string defined here
-                    kill_option = line_list[1] #kill option
-                
+        for line in lines:
+            line = line.strip()
+            if line != "":
+                line_list = line.split(" ")
+                string = line_list[0] #string defined here
+                kill_option = line_list[1] #kill option
+            
 
-                if '{}'.format(string) in string_output: 
-        
-                    if count < 1:
-                        current_time = time.strftime('%l:%M%p %z on %b %d, %Y')
-                        count = count + 1
-                        print ("Found suspect process!" + " " +  current_time + ":" + " " + PID + " " + user + " " + process_path +  "; " + "String matched: " + string)
+            if '{}'.format(string) in string_output: 
+    
+                if count < 1:
+                    current_time = time.strftime('%l:%M%p %z on %b %d, %Y')
+                    count = count + 1
+                    print ("Found suspect process!" + " " +  current_time + ":" + " " + PID + " " + user + " " + process_path +  "; " + "String matched: " + string)
 
-                        with open('{}'.format(log_file), 'a') as f:
-                            f.write(current_time + ":" + " " + PID + " " + user + " " + process_path + "; " + "String matched: " + string)
-                            f.write("\n")
+                    with open('{}'.format(log_file), 'a') as f:
+                        f.write(current_time + ":" + " " + PID + " " + user + " " + process_path + "; " + "String matched: " + string)
+                        f.write("\n")
 
-                        if kill_option == "kill":
-                            kill_output = subprocess.check_output(['/bin/kill', '-9', '{}'.format(PID)])
-                            print("Process should be killed now.")
+                    if kill_option == "kill":
+                        kill_output = subprocess.check_output(['/bin/kill', '-9', '{}'.format(PID)])
+                        print("Process should be killed now.")
 
-    except subprocess.CalledProcessError as e:
+    except ValueError as e:
         pass
 
     return
 
 def main(path_to_compiled_binary, log_file, string_file):
-    #check OS: Darwin = Mac, Linux = Linux
-    OS = str(platform.system())
-   
+
     while True:
 
-        process_info_list = Get_Processes(path_to_compiled_binary, OS) #list which will have PID, user, and process path information we need.
+        process_info_list = Get_Processes(path_to_compiled_binary) #list which will have PID, user, and process path information we need.
 
         #we will show example using 3 threads - can always expand to more threads depending on the number of strings you want to search
         length_processes = len(process_info_list)
@@ -232,4 +220,4 @@ if __name__ == '__main__':
         sys.exit()
 
     main(str(args.path_to_compiled_binary), str(args.output), str(args.string_file))
-
+#print(output_list)
