@@ -36,7 +36,7 @@ import os.path
 import time
 import argparse
 import sys
-import threading
+#import threading
 
 def Get_Processes(path_to_compiled_binary):
 
@@ -137,8 +137,10 @@ def main(path_to_compiled_binary, log_file, string_file):
 
                 process_path = particular_process_list[2]
                 process_path = process_path.strip()
+                Check_Process_Strings(PID, user, process_path, log_file, string_file)
                 
 
+''' THIS IMPLEMENTATION CAN CAUSE ERRORS, BUT COULD PROVIDE A FRAMEWORK TO INTRODUCE MULTITHREADING LATER
                 #thread 3
                 if i % 3 == 0:
                     #set up thread
@@ -170,7 +172,7 @@ def main(path_to_compiled_binary, log_file, string_file):
             
                     
                   
-
+'''
                 
                 
 
