@@ -1,4 +1,4 @@
-# String_Spy - A MacOS Defensive Tool 
+# String_Spy - A MacOS/Linux Defensive Tool 
 Author: AsaurusRex
 
 ## Purpose
