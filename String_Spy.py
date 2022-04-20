@@ -75,7 +75,7 @@ def Get_Processes(path_to_compiled_binary, OS):
                             
                     elif OS == "Linux":
                         PID_output = subprocess.check_output(['/bin/readlink' , '/proc/{}/exe'.format(PID.strip())])
-                        PID_output = str(PID_output)
+                        PID_output = str(PID_output)[2:-3] #needed to remove trailing lines and b'
                         process_path = PID_output
                         useful_info = PID + ", " + user + ", " + process_path
                         process_info_list.append(useful_info)
