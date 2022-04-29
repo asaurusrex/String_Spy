@@ -5,7 +5,7 @@ Author: AsaurusRex
 String Spy is a project aimed at improving MacOS defenses.  It allows users to constantly monitor all running processes for user-defined strings, and if it detects a process with such a string it will log the PID, process path, and user running the process.  It will also (optionally) kill the process.  For certain default C2s and other malicious software, this tool can quickly log and stop malicious behavior that normal AV does not recognize, and allows for customization.  Right now, String_Spy is set to look for default Mythic payloads, but any IOC string can be used and searched in running processes.  This tool is very similar to Yara, but easier to run for end users.
 
 ## Requirements:
-Python2 (only tested with Python2.7+), and some associated Python libraries.  In addition, the ability to compile C code to run on your native OS - gcc worked just fine for me. NOTE: Linux OS's do not need to worry about this part as much, and can link any dummy file to run as PID_resolver - this is a TODO for me to clean up.
+Python2 or Python3 (only tested with Python2.7+ and Python3.9+), and some associated Python libraries.  In addition, the ability to compile C code to run on your native OS - gcc worked just fine for me. NOTE: Linux OS's do not need to worry about this part as much, and can link any dummy file to run as PID_resolver - this is a TODO for me to clean up.
 This is only designed to run on MacOS, not Linux, so some modifications would be needed to port this code to Linux - especially to the C code.
 
 ## Usage
